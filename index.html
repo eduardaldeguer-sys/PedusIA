@@ -4,24 +4,107 @@
 <meta charset="UTF-8">
 <title>Pedus IA 0.1 BETA</title>
 <style>
-body { font-family: Arial; background:#121212; color:#00ffcc; display:flex; flex-direction:column; align-items:center; padding:20px;}
-h1 { color:#00ffcc; }
-#chat { width:80%; max-width:800px; height:400px; background:#1e1e1e; border:2px solid #00ffcc; padding:10px; overflow-y:auto; margin-bottom:10px;}
-#userInput { width:80%; max-width:800px; padding:10px; border:2px solid #00ffcc; background:#1e1e1e; color:#00ffcc;}
-button { padding:10px 20px; border:2px solid #00ffcc; background:#121212; color:#00ffcc; cursor:pointer; margin-left:10px;}
-.user { color:#00ccff; }
-.ia { color:#ffcc00; }
+/* Fondo animado */
+body {
+    margin: 0;
+    font-family: 'Courier New', monospace;
+    background: radial-gradient(circle at 50% 50%, #0f0f0f, #121212);
+    color: #00ffcc;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* Título */
+h1 {
+    color: #00ffcc;
+    text-shadow: 0 0 10px #00ffcc, 0 0 20px #00ffcc;
+    margin-top: 20px;
+}
+
+/* Chat */
+#chat {
+    width: 90%;
+    max-width: 900px;
+    height: 450px;
+    background: rgba(0, 0, 0, 0.85);
+    border: 2px solid #00ffcc;
+    padding: 15px;
+    overflow-y: auto;
+    margin-top: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 20px #00ffcc;
+}
+
+/* Input y botón */
+#inputArea {
+    display: flex;
+    width: 90%;
+    max-width: 900px;
+    margin-top: 15px;
+}
+
+#userInput {
+    flex: 1;
+    padding: 12px;
+    border: 2px solid #00ffcc;
+    border-radius: 5px 0 0 5px;
+    background: #1e1e1e;
+    color: #00ffcc;
+    font-size: 16px;
+}
+
+button {
+    padding: 12px 20px;
+    border: 2px solid #00ffcc;
+    border-left: 0;
+    border-radius: 0 5px 5px 0;
+    background: #0a0a0a;
+    color: #00ffcc;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.2s;
+}
+
+button:hover {
+    background: #00ffcc;
+    color: #000;
+}
+
+/* Mensajes */
+.user { color: #00ccff; margin:5px 0; }
+.ia { color: #ffcc00; margin:5px 0; }
+
 </style>
 </head>
 <body>
 
 <h1>Pedus IA 0.1 BETA</h1>
+
 <div id="chat"></div>
-<input type="text" id="userInput" placeholder="Escribe tu pregunta...">
-<button onclick="preguntar()">Enviar</button>
+
+<div id="inputArea">
+    <input type="text" id="userInput" placeholder="Escribe tu pregunta...">
+    <button onclick="preguntar()">Enviar</button>
+</div>
 
 <script>
-async function preguntar() {
+// Para versión solo HTML (sin servidor)
+const memoria = `que es python 0|Python es un lenguaje de programación interpretado.
+que es java 1|Java es un lenguaje orientado a objetos.
+que es html 2|HTML es un lenguaje de marcado para crear páginas web.
+que es css 3|CSS sirve para diseñar páginas web.
+que es javascript 4|JavaScript es un lenguaje para hacer páginas interactivas.`;
+
+const memoriaArr = memoria.split('\n').map(linea => {
+    const [pregunta, respuesta] = linea.split('|');
+    return { pregunta: pregunta.trim(), respuesta: respuesta.trim() };
+});
+
+function preguntar() {
     const input = document.getElementById('userInput');
     const chat = document.getElementById('chat');
     const pregunta = input.value.trim();
@@ -29,14 +112,21 @@ async function preguntar() {
 
     chat.innerHTML += `<div class="user">Tú: ${pregunta}</div>`;
 
-    // Enviar pregunta al servidor
-    const respuesta = await fetch('/preguntar', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ pregunta })
-    }).then(res => res.json());
+    // Buscar en memoria
+    let respuestaEncontrada = null;
+    for (let item of memoriaArr) {
+        if (pregunta.toLowerCase() === item.pregunta.toLowerCase()) {
+            respuestaEncontrada = item.respuesta;
+            break;
+        }
+    }
 
-    chat.innerHTML += `<div class="ia">Pedus IA: ${respuesta.respuesta}</div>`;
+    if (respuestaEncontrada) {
+        chat.innerHTML += `<div class="ia">Pedus IA: ${respuestaEncontrada}</div>`;
+    } else {
+        chat.innerHTML += `<div class="ia">Pedus IA: No sé eso aún. (Para aprender, ejecuta servidor.py)</div>`;
+    }
+
     chat.scrollTop = chat.scrollHeight;
     input.value = '';
 }
@@ -44,4 +134,3 @@ async function preguntar() {
 
 </body>
 </html>
-
