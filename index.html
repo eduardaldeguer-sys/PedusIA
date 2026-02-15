@@ -1,1 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Pedus IA 0.1 BETA</title>
+<style>
+body { font-family: Arial; background:#121212; color:#00ffcc; display:flex; flex-direction:column; align-items:center; padding:20px;}
+h1 { color:#00ffcc; }
+#chat { width:80%; max-width:800px; height:400px; background:#1e1e1e; border:2px solid #00ffcc; padding:10px; overflow-y:auto; margin-bottom:10px;}
+#userInput { width:80%; max-width:800px; padding:10px; border:2px solid #00ffcc; background:#1e1e1e; color:#00ffcc;}
+button { padding:10px 20px; border:2px solid #00ffcc; background:#121212; color:#00ffcc; cursor:pointer; margin-left:10px;}
+.user { color:#00ccff; }
+.ia { color:#ffcc00; }
+</style>
+</head>
+<body>
+
+<h1>Pedus IA 0.1 BETA</h1>
+<div id="chat"></div>
+<input type="text" id="userInput" placeholder="Escribe tu pregunta...">
+<button onclick="preguntar()">Enviar</button>
+
+<script>
+async function preguntar() {
+    const input = document.getElementById('userInput');
+    const chat = document.getElementById('chat');
+    const pregunta = input.value.trim();
+    if (!pregunta) return;
+
+    chat.innerHTML += `<div class="user">Tú: ${pregunta}</div>`;
+
+    // Enviar pregunta al servidor
+    const respuesta = await fetch('/preguntar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pregunta })
+    }).then(res => res.json());
+
+    chat.innerHTML += `<div class="ia">Pedus IA: ${respuesta.respuesta}</div>`;
+    chat.scrollTop = chat.scrollHeight;
+    input.value = '';
+}
+</script>
+
+</body>
+</html>
 
