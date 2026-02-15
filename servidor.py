@@ -4,7 +4,7 @@ import os
 app = Flask(__name__)
 ARCHIVO_MEMORIA = "memoria.txt"
 
-# Asegurarnos de que exista
+# Crear memoria si no existe
 if not os.path.exists(ARCHIVO_MEMORIA):
     open(ARCHIVO_MEMORIA, "w").close()
 
@@ -18,12 +18,12 @@ def cargar_memoria():
                 memoria[pregunta.lower()] = respuesta
     return memoria
 
-# Guardar nueva entrada
+# Guardar nueva pregunta/respuesta
 def guardar_memoria(pregunta, respuesta):
     with open(ARCHIVO_MEMORIA, "a", encoding="utf-8") as f:
         f.write(f"{pregunta}|{respuesta}\n")
 
-# Ruta para servir HTML
+# Ruta principal
 @app.route("/")
 def home():
     return send_from_directory(".", "index.html")
@@ -42,7 +42,7 @@ def preguntar():
         if nueva_respuesta:
             guardar_memoria(pregunta, nueva_respuesta)
             return jsonify({"respuesta": f"Aprendido: {nueva_respuesta}"})
-        return jsonify({"respuesta": "No sé eso aún. Enséñame."})
+        return jsonify({"respuesta": "No sé eso aún."})
 
 if __name__ == "__main__":
     app.run(debug=True)
